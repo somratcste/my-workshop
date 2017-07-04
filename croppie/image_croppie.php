@@ -1,3 +1,13 @@
+<!-- From View Start -->
+<div class="clearfix">
+    <label for="name">Upload Image</label>
+    <div class="upload_image" style="text-align: center">
+        <img id="imageID" src='' width="250px" height="300px">
+    </div>
+    {{ partial("content/partials/image_croppie", ['width':250,'height':250])}}
+</div>
+<!-- End -->
+
 {{ stylesheet_link('css/croppie.css') }}
 {{ javascript_include('js/croppie.js') }}
 <style type="text/css">
