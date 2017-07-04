@@ -53,9 +53,20 @@ public function croppieAction()
                 return $response;
             }
             $file = str_replace('/var/www/html/bangladesh.gov.bd-mig', '', $file);
-            $response = new Response();
             $response->setContentType('application/json', 'UTF-8');
             $response->setContent(json_encode(array("result" => $file,"filename" => $filename)));
             return $response;
         }
+    }
+
+    public function croppieCancelAction()
+    {
+        $response = new Response();
+        print_r($this->request->getPost('previousImage'));die;
+        if($this->request->getPost('previousImage')){
+            unlink('/var/www/html/bangladesh.gov.bd-mig'.$this->request->getPost('previousImage'));
+        }
+        $response->setContentType('application/json', 'UTF-8');
+        $response->setContent(json_encode(array("result" => "Image Deleted successfully.")));
+        return $response;
     }
