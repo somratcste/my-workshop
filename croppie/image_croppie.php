@@ -41,7 +41,7 @@
       </div>
       <div class="modal-body">
         <form>
-	        <input type="file" id="upload" value="Choose a file">
+	        <input type="file" id="upload" value="Choose a file" accept="image/*">
 	        <div id="upload-demo"></div>
 	        <input type="hidden" id="imagebase64" name="imagebase64">
       </div>
@@ -148,7 +148,7 @@
         $('.upload-result').on('click', function (ev) {
             $uploadCrop.croppie('result', {
                 type: 'canvas',
-                size: 'original'
+                size: 'original',
             }).then(function (resp) {
                 $('#imagebase64').val(resp);
                 var url = '/npfadmin/contenttype/croppie';
@@ -174,7 +174,7 @@
 
         $('#imageRemove').on('click', function(){
         	if($('#imageID').attr('src')){
-	        	var url = '/npfadmin/contenttype/croppieCancel';
+	        	var url = '/npfadmin/contenttype/croppiecancel';
 	        	$.ajax({
 			        	url: url,
 						type: 'POST',
@@ -183,6 +183,7 @@
 						success: function(response){
 							$('#_0_name').val('');
 	        				$('.upload_image').hide();
+	        				$('#imageID').attr('src','');
 							alert(response.result);
 						},
 						error: function(response){
