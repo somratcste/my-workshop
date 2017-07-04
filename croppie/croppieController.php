@@ -59,10 +59,9 @@ public function croppieAction()
         }
     }
 
-    public function croppieCancelAction()
+    public function croppiecancelAction()
     {
         $response = new Response();
-        print_r($this->request->getPost('previousImage'));die;
         if($this->request->getPost('previousImage')){
             unlink('/var/www/html/bangladesh.gov.bd-mig'.$this->request->getPost('previousImage'));
         }
