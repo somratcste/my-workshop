@@ -7,7 +7,15 @@ $.ajax({
 	}
 });
 
-
+$.ajax({
+            url : '<?= $this->Url->build(["_name"=>(!empty($options['masterListUrl'])?$options['masterListUrl']:'')]) ?>',
+            data: {},
+            type: 'post',
+            dataType: 'html',
+            success: function(response){
+                $('.showDetails').html(response);
+            }
+        });
 //phalcon 
 var url = '/npfadmin/contenttype/croppie';
 $.ajax({
