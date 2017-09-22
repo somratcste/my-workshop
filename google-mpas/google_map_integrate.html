@@ -89,9 +89,15 @@
     </style>
 </head>
 <body>
-<div style="height: 400px;">
-    <input id="pac-input" class="controls" type="text" placeholder="Search Box" value="">
-    <div id="map"></div>
+<div class="col-md-8">
+    <div style="width: 100%;overflow: hidden;max-width: 100%">
+        <input name="location" id="pac-input" class="form-controls" type="text" placeholder="Update Your Location ..." value="{{ $job_post->location or old('location') }}">
+    </div>
+    <div style="width:100%;overflow:hidden;height:500px;max-width:100%;margin-bottom: 20px">
+        <div id="map"></div>
+    </div>
+    <input type="hidden" name="lat" id="lat" value="{{ $job_post->lat or old('lat') }}">
+    <input type="hidden" name="lng" id="lng" value="{{ $job_post->lng or old('lng') }}">
 </div>
 
 <script type="text/javascript">
