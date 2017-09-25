@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Places Searchbox</title>
+    <style>
+
+        #map {
+            height: 100%;
+        }
+
+        #description {
+            font-family: Roboto;
+            font-size: 15px;
+            font-weight: 300;
+        }
+
+        #infowindow-content .title {
+            font-weight: bold;
+        }
+
+        #infowindow-content {
+            display: none;
+        }
+
+        #map #infowindow-content {
+            display: inline;
+        }
+
+        .pac-card {
+            margin: 10px 10px 0 0;
+            border-radius: 2px 0 0 2px;
+            box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            outline: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            background-color: #fff;
+            font-family: Roboto;
+        }
+
+        #pac-container {
+            padding-bottom: 12px;
+            margin-right: 12px;
+        }
+
+        .pac-controls {
+            display: inline-block;
+            padding: 5px 11px;
+        }
+
+        .pac-controls label {
+            font-family: Roboto;
+            font-size: 13px;
+            font-weight: 300;
+        }
+
+        #pac-input {
+            background-color: #fff;
+            font-family: Roboto;
+            font-size: 15px;
+            font-weight: 300;
+            margin-left: -15px;
+            text-overflow: ellipsis;
+            width: 400px;
+        }
+
+        #pac-input:focus {
+            border-color: #4d90fe;
+        }
+
+        #title {
+            color: #fff;
+            background-color: #4d90fe;
+            font-size: 25px;
+            font-weight: 500;
+            padding: 6px 12px;
+        }
+        #target {
+            width: 345px;
+        }
+        .gm-style-mtc{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="col-md-8">
+    <div style="width: 100%;overflow: hidden;max-width: 100%">
+        <input name="location" id="pac-input" class="form-controls" type="text" placeholder="Update Your Location ..." value="">
+    </div>
+    <div style="width:100%;overflow:hidden;height:500px;max-width:100%;margin-bottom: 20px">
+        <div id="map"></div>
+    </div>
+    <input type="hidden" name="lat" id="lat" value="">
+    <input type="hidden" name="lng" id="lng" value="">
+</div>
+
+<script type="text/javascript">
+
+    function initAutocomplete() {
+        if(!!navigator.geolocation) {
+
+            var map;
+
+            var mapOptions = {
+                zoom: 16,
+                mapTypeId:google.maps.MapTypeId.ROADMAP
+            };
+
+            map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var geolocate = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                var lat = position.coords.latitude;
+                var lng = position.coords.longitude;
+                $('#lat').val(lat);
+                $('#lng').val(lng);
+                var google_maps_geocoder = new google.maps.Geocoder();
+                var google_map_pos = new google.maps.LatLng( lat, lng );
+                google_maps_geocoder.geocode(
+                    { 'latLng': google_map_pos },
+                    function( results, status ) {
+                        if ( status == google.maps.GeocoderStatus.OK && results[0] ) {
+                            $('#pac-input').val(results[0].formatted_address);
+                            var infowindow = new google.maps.InfoWindow({
+                                map: map,
+                                position: geolocate,
+                                content:
+                                '<div><strong>' + results[0].formatted_address + '</strong></div>'
+                            });
+                        }
+                    }
+                );
+
+                map.setCenter(geolocate);
+
+            });
+
+        } else {
+            document.getElementById('map').innerHTML = 'No Geolocation Support.';
+        }
+
+        var myOptions = {
+            zoom: 18,
+            center: new google.maps.LatLng(lat,lng),
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        }
+        var map = new google.maps.Map(document.getElementById('map'),myOptions);
+
+        var markerOptions = {
+            position : new google.maps.LatLng(lat,lng)
+        }
+
+        var marker = new google.maps.Marker(markerOptions);
+        marker.setMap(map);
+
+        var infoWindow = new google.maps.InfoWindow();
+        infoWindow.setContent('<div><strong></strong></div>');
+        infoWindow.open(map,marker);
+        google.maps.event.addListener(marker,'click',function (e) {
+            infoWindow.open(map,marker);
+        })
+
+        var input = document.getElementById('pac-input');
+        var searchBox = new google.maps.places.SearchBox(input);
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+        map.addListener('bounds_changed', function() {
+            searchBox.setBounds(map.getBounds());
+        });
+
+        var markers = [];
+        searchBox.addListener('places_changed', function() {
+            infoWindow.close();
+            var places = searchBox.getPlaces();
+            if (places.length == 0) {
+                return;
+            }
+            markers.forEach(function(marker) {
+                marker.setMap(null);
+            });
+            markers = [];
+            var bounds = new google.maps.LatLngBounds();
+            places.forEach(function(place) {
+                if (!place.geometry) {
+                    console.log("Returned place contains no geometry");
+                    return;
+                }
+                var icon = {
+                    url: place.icon,
+                    size: new google.maps.Size(71, 71),
+                    origin: new google.maps.Point(0, 0),
+                    anchor: new google.maps.Point(17, 34),
+                    scaledSize: new google.maps.Size(25, 25)
+                };
+
+                markers.push(new google.maps.Marker({
+                    map: map,
+                    icon: icon,
+                    title: place.name,
+                    position: place.geometry.location,
+                    zoom : 18
+                }));
+
+                if (place.geometry.viewport) {
+                    map.fitBounds(place.geometry.viewport);
+                } else {
+                    map.setCenter(place.geometry.location);
+                    map.setZoom(18);
+                }
+                marker.setPosition(place.geometry.location);
+                var infoWindow = new google.maps.InfoWindow();
+                infoWindow.setContent('<div><strong>'+place.name+'</strong></div>');
+                infoWindow.open(map,marker);
+                google.maps.event.addListener(marker,'click',function (e) {
+                    infoWindow.open(map,marker);
+                })
+                var lat = place.geometry.location.lat(),
+                    lng = place.geometry.location.lng();
+                $('#lat').val(lat);
+                $('#lng').val(lng);
+            });
+        });
+    }
+
+</script>
+<script
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD1cUHObG_MZTggDJX8mWXq_z8034UXDUU&libraries=places&callback=initAutocomplete"
+        async defer></script>
+</body>
+</html>
