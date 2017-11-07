@@ -67,4 +67,29 @@ public function searchPartInfos(){
     $this->response->type('json');
     return $this->response;
 }
+
+public function searchLocationInfos(){
+
+    $table = TableRegistry::get('PartLocations');
+    $keyField = $this->request->getData('keyField');
+    if(empty($keyField))
+        $keyField = 'id';
+
+    $key = $this->request->getData('key');
+    $response = $table->find('list',['keyField'=>$keyField ,'valueField'=>'name'])
+        ->select(['name' => 'concat(store_code,"||",store_name,"||",room ,"||",rack_number)'])
+        ->where(["$key LIKE"=>"%" . $this->request->getData($key) . "%"]);
+
+    $response->limit(20)->toArray();
+
+    $options = [];
+    if(!empty($response)){
+        foreach($response as $key=>$value){
+            $options[] = ['id'=>$key,'text' => $value];
+        }
+    }
+    $this->response->body(json_encode($options));
+    $this->response->type('json');
+    return $this->response;
+}
 ?>
