@@ -77,7 +77,7 @@ public function searchLocationInfos(){
 
     $key = $this->request->getData('key');
     $response = $table->find('list',['keyField'=>$keyField ,'valueField'=>'name'])
-        ->select(['name' => 'concat(store_code,"||",store_name,"||",room ,"||",rack_number)'])
+        ->select(['id','name' => 'concat("[",store_code,"]","-",store_name,"-",room ,"-",rack_number)'])
         ->where(["$key LIKE"=>"%" . $this->request->getData($key) . "%"]);
 
     $response->limit(20)->toArray();
