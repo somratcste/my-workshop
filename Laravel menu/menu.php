@@ -112,3 +112,56 @@ return [
 ]
 
 ======= structure for menu ================ 
+
+
+======== with sub menu parent name =============
+
+public function displayMenu($nodes, &$menu, $parent = null) {
+        foreach ($nodes as $node) {
+
+            $f = 0;
+            if((isset($node['child']) && count($node['child']))) {
+                $f = 1;
+            }
+
+            $url = value($node['url'] ?? '');
+
+            $requestUrl = \Request::url();
+            $flag = 0;
+            if($url === $requestUrl){
+                $flag = 1;
+                $menu .= '<li '.( $f ? 'class="treeview active"' : '').'>';
+            }
+            else {
+                $menu .= '<li '.( $f ? 'class="treeview"' : '').'>';
+            }
+
+            $menu .= '<a href="'.$url.'">';
+            $menu .= isset($node['icon']) ? '<i class="'.$node['icon'].'"></i>' : '';
+            $menu .= !is_null($parent) ? '<span>'.trans('menu.attributes.'.$parent).' '.trans('menu.attributes.'.$node['name']).'</span>' : '<span>'.trans('menu.attributes.'.$node['name']).'</span>';
+            $menu .= ( $f ? '<span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>' : '');
+            $menu .= '</a>';
+
+            if ($f) {
+                if($flag) {
+                    $menu.= '<ul class="treeview-menu" style="display: none;">';
+                } else {
+                    $menu.= '<ul class="treeview-menu">';
+                }
+                $this->displayMenu($node['child'],$menu, $parent.''.$node['name']);
+                $menu .= '</ul>';
+            }
+            $menu .= '</li>';
+        }
+    }
+
+
+    public function compose(View $view)
+    {
+        $menus = '';
+        $this->displayMenu(config('menu.primary'), $menus);
+        $view->with('menus', $menus);
+    }
+
+
+=======   end sub menu parent name ============
