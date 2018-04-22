@@ -57,3 +57,12 @@ public function getPendingQtyByOrderLineItems($orderLineItemId)
              where order_line_items.id = ? limit 1",
         [StockItemStatus::ASSIGNED, $orderLineItemId])[0];
 }
+
+// uddate by model events sql
+
+public function resetConfirmedQty( $orderLineItem )
+{
+    DB::select("update virtual_stocks vs set
+                    vs.confirmed_qty = vs.confirmed_qty - ?
+                    where vs.id = ?", [$orderLineItem->confirmed_qty, $orderLineItem->virtual_stock_id]);
+}
